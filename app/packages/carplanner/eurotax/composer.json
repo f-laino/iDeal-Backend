@@ -1,0 +1,36 @@
+{
+  "name": "carplanner/eurotax",
+  "description": "Servizio di integrazione con il webservice di motornet.it",
+  "type": "library",
+  "authors": [
+    {
+      "name": "George Son",
+      "email": "songeorge93@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": ">=7.1.3",
+    "guzzlehttp/guzzle": "^6.0",
+    "carplanner/eurotax": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "CarPlanner\\Eurotax\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "CarPlanner\\Eurotax\\EurotaxServiceProvider"
+      ],
+      "aliases": {
+        "Eurotax": "CarPlanner\\Eurotax\\Facade\\Eurotax"
+      }
+    }
+  }
+}
