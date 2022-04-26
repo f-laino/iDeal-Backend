@@ -2,7 +2,7 @@
 
 namespace App\Transformer;
 
-use App\Carcategory;
+use App\Models\Carcategory;
 use App\Contractualcategory;
 
 class ContractualcategoryTransformer extends BaseTransformer

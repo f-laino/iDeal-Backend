@@ -2,7 +2,7 @@
 
 namespace App\Transformer;
 
-use App\Attachment;
+use App\Models\Attachment;
 
 class AttachmentTransformer extends BaseTransformer
 {

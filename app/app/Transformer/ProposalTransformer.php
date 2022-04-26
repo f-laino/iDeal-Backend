@@ -9,7 +9,7 @@ use App\Models\Customer;
 use App\Models\Fuel;
 use App\Models\Offer;
 use App\Models\Quotation;
-use App\Proposal;
+use App\Models\Proposal;
 use App\Transformer\QuotationTransformer;
 use Artisan;
 
@@ -45,7 +45,7 @@ use Artisan;
  */
 class ProposalTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = ['offer', 'quotation'];
+    protected array $defaultIncludes = ['offer', 'quotation'];
 
     public function transform(Proposal $proposal)
     {

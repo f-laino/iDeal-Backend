@@ -2,7 +2,7 @@
 
 namespace App\Transformer;
 
-use App\Proposal;
+use App\Models\Proposal;
 use Illuminate\Support\Carbon;
 
 class QuotationsExportItemTransformer extends BaseTransformer

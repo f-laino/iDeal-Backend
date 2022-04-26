@@ -1,7 +1,7 @@
 <?php
 namespace App\Interfaces;
 
- use App\Proposal;
+ use App\Models\Proposal;
  use App\Models\Quotation;
 
  interface PrintServiceInterface

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Interfaces\EurotaxServiceInterface;
-use App\Brand;
+use App\Models\Brand;
 
 class BrandsTableSeeder extends Seeder
 {

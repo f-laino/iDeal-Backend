@@ -8,7 +8,7 @@ use App\Transformer\OfferTransformer;
 
 class OfferItemTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = ['services'];
+    protected array $defaultIncludes = ['services'];
 
 
     public function transform(Offer $offer)

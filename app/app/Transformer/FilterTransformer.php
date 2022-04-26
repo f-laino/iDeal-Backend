@@ -6,9 +6,9 @@ use App\Models\OfferAttributes;
 
 class FilterTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
-    protected $availableIncludes = [];
+    protected array $availableIncludes = [];
 
 
     /**

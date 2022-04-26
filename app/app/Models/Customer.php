@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Attachment;
+use App\Models\Attachment;
 use App\Notifications\CustomerCreated;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

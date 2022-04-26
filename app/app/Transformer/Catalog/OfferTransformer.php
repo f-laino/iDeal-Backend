@@ -28,7 +28,7 @@ use App\Transformer\ChildOfferTransformer;
  */
 class OfferTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = ['car', 'childs'];
+    protected array $defaultIncludes = ['car', 'childs'];
 
     public function transform(Offer $offer)
     {

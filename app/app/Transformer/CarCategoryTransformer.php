@@ -1,7 +1,7 @@
 <?php
 namespace App\Transformer;
 
-use App\Carcategory;
+use App\Models\Carcategory;
 
 /**
  * @OA\Schema(

@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Proposal;
-use App\Service;
+use App\Models\Proposal;
+use App\Models\Service;
 
 class ProposalServiceSeeder extends Seeder
 {

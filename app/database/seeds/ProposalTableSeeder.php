@@ -1,7 +1,7 @@
 <?php
 
-use App\Quotation;
-use App\Proposal;
+use App\Models\Quotation;
+use App\Models\Proposal;
 use Illuminate\Database\Seeder;
 
 class ProposalTableSeeder extends Seeder

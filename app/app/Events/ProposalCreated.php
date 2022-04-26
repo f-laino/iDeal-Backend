@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Proposal;
+use App\Models\Proposal;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Events\Dispatchable;

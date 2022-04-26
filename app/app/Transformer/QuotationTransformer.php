@@ -3,14 +3,14 @@
 namespace App\Transformer;
 
 use App\Models\Agent;
-use App\Attachment;
+use App\Models\Attachment;
 use App\Models\Brand;
 use App\Models\Car;
 use App\Models\Customer;
 use App\Factories\CrmFactory;
 use App\Models\Fuel;
 use App\Models\Offer;
-use App\Proposal;
+use App\Models\Proposal;
 use App\Models\Quotation;
 
 /**
@@ -22,7 +22,7 @@ use App\Models\Quotation;
  */
 class QuotationTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = ['offer', 'attachments'];
+    protected array $defaultIncludes = ['offer', 'attachments'];
 
     public function transform(Quotation $quotation)
     {

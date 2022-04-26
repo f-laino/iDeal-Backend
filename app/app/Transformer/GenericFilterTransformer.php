@@ -3,12 +3,13 @@
 namespace App\Transformer;
 
 use App\Common\Models\GenericFilter;
+use App\Transformer\BaseTransformer;
 
 class GenericFilterTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = [];
+    protected array $defaultIncludes = [];
 
-    protected $availableIncludes = [];
+    protected array $availableIncludes = [];
 
     /**
      * @param GenericFilter $filter

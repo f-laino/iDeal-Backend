@@ -6,7 +6,7 @@ use App\Transformer\AttachmentTransformer;
 
 class QuotationAttachmentTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = ['files'];
+    protected array $defaultIncludes = ['files'];
 
     public function transform(array $attachments)
     {

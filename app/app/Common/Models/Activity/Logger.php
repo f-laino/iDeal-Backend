@@ -3,7 +3,7 @@
 
 namespace App\Common\Models\Activity;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;

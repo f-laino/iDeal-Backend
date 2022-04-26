@@ -8,7 +8,7 @@ use App\Models\Car;
 use App\Models\Customer;
 use App\Factories\CrmFactory;
 use App\Models\Offer;
-use App\Proposal;
+use App\Models\Proposal;
 use App\Models\Quotation;
 
 class ProposalItemTransformer extends BaseTransformer

@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Common\Models\DocumentList as MandatoryDocumentList;
 use App\Models\DocumentList;
 use App\Events\QuotationCreated;
-use App\Proposal;
+use App\Models\Proposal;
 use Carbon\Carbon;
 use Devio\Pipedrive\PipedriveFacade as Pipedrive;
 use Illuminate\Database\Eloquent\Collection;

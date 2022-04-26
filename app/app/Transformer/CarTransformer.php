@@ -18,8 +18,8 @@ use App\Models\Car;
  */
 class CarTransformer extends BaseTransformer
 {
-    protected $availableIncludes = ['category', 'fuel', 'images'];
-    protected $defaultIncludes = ['brand'];
+    protected array $availableIncludes = ['category', 'fuel', 'images'];
+    protected array $defaultIncludes = ['brand'];
 
     /**
      * @param Car $car

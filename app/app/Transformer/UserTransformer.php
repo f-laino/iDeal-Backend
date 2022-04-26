@@ -2,15 +2,15 @@
 
 namespace App\Transformer;
 
-use App\User;
+use App\Models\User;
 
 class UserTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = [
+    protected array $defaultIncludes = [
 
     ];
 
-    protected $availableIncludes = [
+    protected array $availableIncludes = [
         'documents',
         'address'
     ];

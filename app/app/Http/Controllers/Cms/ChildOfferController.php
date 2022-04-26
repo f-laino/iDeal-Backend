@@ -6,7 +6,7 @@ use App\Common\Models\Activity\Logger;
 use App\Http\Requests\Cms\ChildOfferCreate;
 use App\Http\Requests\Cms\ChildOfferDestroy;
 use App\Models\Offer;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 

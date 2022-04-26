@@ -7,7 +7,7 @@ use App\Models\Car;
 use App\Models\ContractualCategory;
 use App\Models\Customer;
 use App\Models\Offer;
-use App\Proposal;
+use App\Models\Proposal;
 use App\Models\Quotation;
 use App\Events\QuotationPrinted;
 use App\Events\ProposalPrinted;

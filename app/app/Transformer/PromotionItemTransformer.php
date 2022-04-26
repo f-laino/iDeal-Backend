@@ -27,7 +27,7 @@ use App\Models\Promotion;
 class PromotionItemTransformer extends BaseTransformer
 {
     private $agent;
-    protected $defaultIncludes = ['offers'];
+    protected array $defaultIncludes = ['offers'];
 
     public function __construct(Agent $agent)
     {

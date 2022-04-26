@@ -84,7 +84,7 @@ use App\Transformer\Car\CarAccessoryTransformer;
  */
 class OfferTransformer extends BaseTransformer
 {
-    protected $defaultIncludes = ['images', 'services', 'child',
+    protected array $defaultIncludes = ['images', 'services', 'child',
         'equippedAccessories', 'optionalAccessories', 'colors'];
 
 
