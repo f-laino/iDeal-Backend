@@ -16,14 +16,14 @@ use App\Models\Quotation;
 use App\Exports\QuotationsExport;
 use App\Facades\Search;
 use App\Services\AttachmentService;
-use App\Services\Files\FileNameService;
+use App\Services\Files\TemporaryStorageService;
 use App\Services\PrintService;
 use App\Transformer\ErrorResponseTransformer;
 use App\Transformer\ProposalItemTransformer;
 use App\Transformer\ProposalTransformer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use League\Fractal\Manager;
@@ -174,11 +174,10 @@ class QuotationController extends ApiController
      * Upload quotation documents
      *
      * @param Request $request
-     *
+     * @param AttachmentService $attachmentService
      * @return \Illuminate\Http\JsonResponse
      *
      * @throws \Throwable
-     *
      * @OA\Post(
      *   tags={"Quotation"},
      *   path="/quotations/documents/upload",
@@ -223,17 +222,20 @@ class QuotationController extends ApiController
      *     )
      *   ),
      * )
+     * @author George Son
      */
-    public function attachDocument(Request $request)
+    public function attachDocument(
+        Request $request,
+        AttachmentService $attachmentService,
+        TemporaryStorageService $temporaryStorage
+    )
     {
         /** @var Agent $agent */
         $agent = auth('api')->user();
 
-        /** @var AttachmentService $attachmentService */
-        $attachmentService = app(AttachmentService::class);
-
+        //leggo i parametri
         $quotationId = $request->get('quotation');
-        $fileType = $request->get('file_type', 'UNKNOWN');
+        $fileType = $request->get('file_type', 'unknown');
 
         $files = $request->allFiles();
 
@@ -254,40 +256,58 @@ class QuotationController extends ApiController
             $offer = $proposal->offer;
 
         } catch (\Exception $exception) {
-            return response()->json(['message' => 'Quotation not found'], Response::HTTP_BAD_REQUEST);
+            return response()->json(
+                ['message' => 'Quotation not found'],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         //valido le entita
-//        if ($offer->trashed()) {
-//            return response()->json(['message' => 'Offer not valid'], Response::HTTP_BAD_REQUEST);
-//        }
+        if ($offer->trashed()) {
+            return response()->json(
+                ['message' => 'Offer not valid'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
 
         //inizializzo connessione CRM
         $crmFactory = CrmFactory::create($quotation);
 
-        //inizio la gestione degli attachments
+        /* inizio la gestione degli attachments */
         try {
             /** @var UploadedFile $file */
             foreach ($files as $file) {
-                $extension = $file->getClientOriginalExtension();
-
-                $realPath = $file->getPath() . ".{$extension}";
-                $fl = new SplFileInfo($realPath);
 
                 //salvo il file nello storage dedicato
-                $store = $attachmentService->addCustomerAttachment($customer, $fl, $fileType);
-                dd($store);
-                //inoltro i file al sistema crm
-//                $crmFactory->addFile($file, $customer);
+                $attachment = $attachmentService->addCustomerAttachment($customer, $file, $fileType);
+
+                /* inoltro i file al sistema crm */
+
+                //le integrazione funzionano solo con SplFileInfo
+                $fl = $temporaryStorage->storeAndRetrieve($file, $attachment);
+                $flPath = $fl->getPath();
+
+                //invio il file
+                $crmFactory->addFile($fl, $customer);
+
+                //remove file from storage
+                $temporaryStorage->removeFile($flPath);
             }
         } catch (\Exception $exception) {
+
             Log::channel('docs')
-                ->error("Upload file fail with error: " . $exception->getMessage() . " code: " . $exception->getCode());
+                ->error("Upload file fail with error: " . $exception->getMessage() .
+                    " code: " . $exception->getCode());
+
             return response()->json(
-                    ['message' => $exception->getMessage()],
-                    Response::HTTP_BAD_REQUEST
+                [
+                    'message' => $exception->getMessage()
+                ],
+                Response::HTTP_BAD_REQUEST
             );
         }
+
+        /* end gestione degli attachments */
 
         //Controllo se l'utente ha tutti i doc e imposto il flag sul CRM a si se neccessario
         if ($quotation->hasMandatoryDocuments()) {
@@ -296,96 +316,6 @@ class QuotationController extends ApiController
         }
 
         return response()->json(['message' => 'File uploaded'], Response::HTTP_OK);
-
-    }
-
-    public function attachDocumentBk(Request $request)
-    {
-        /** @var Agent $agent */
-        $agent = auth('api')->user();
-        $file_type = $request->get('file_type', 'UNKNOWN');
-        $files = $request->allFiles();
-
-        $status = true;
-        $files_error = [];
-
-        try {
-            /** @var Quotation $quotation */
-            $quotation = $agent->quotations()->where("quotations.id", $request->quotation)->firstOrFail();
-
-            if ($quotation->proposal->offer->trashed()) {
-                return response()->json(['message' => 'Offer not valid'], 400);
-            }
-
-            $crmFactory = CrmFactory::create($quotation);
-
-            if (empty($quotation->crm_id)) {
-                return response()->json(['message' => 'Quotation not found on crm'], 400);
-            }
-        } catch (\Exception $exception) {
-            return response()->json(['message' => 'Quotation not found'], 400);
-        }
-
-        foreach ($files as $file) {
-            try {
-                $timestamp = Carbon::now()->toDateTimeString();
-                $filename = "$file_type-$timestamp-{$quotation->proposal->agent->id}." . $file->getClientOriginalExtension();
-
-                //Human readable filesize
-                $fileSize = number_format($file->getSize() / 1048576, 2);
-                $metadata = "Request File Name: $filename - Request File Type: $file_type - Original Name: " . $file->getClientOriginalName() . " - Extension: " . $file->getClientOriginalExtension() . " - Size: " . $fileSize . "MB - Mime Type: " . $file->getMimeType();
-
-                \Log::channel('docs')->info("Init storing file: $metadata");
-
-                //Salvo i file in maniera temporanea per poter inviarli a Pipedrive
-                $upload = Storage::disk('tmp')->put($filename, file_get_contents($file));
-
-                //write logs
-                if ($upload) {
-                    \Log::channel('docs')->info("Done storing file: $filename");
-                } else {
-                    \Log::channel('docs')->info("Cannot storing file: $filename");
-                }
-
-                //Salvo i riferimenti nel database
-                $attachment = new Attachment;
-                $attachment->type = Attachment::TYPE_CUSTOMER;
-                $attachment->entity_id = $quotation->proposal->customer->id;
-                $attachment->name = $filename;
-                $attachment->description = $file_type;
-                $attachment->saveOrFail();
-
-                $status &= $upload;
-
-                $filePath = Storage::disk('tmp')->path($filename);
-                $fl = new \SplFileInfo($filePath);
-
-                $customer = $quotation->proposal->customer;
-                $crmFile = $crmFactory->addFile($fl, $customer);
-            } catch (\Exception $exception) {
-                \Log::channel('docs')->error("Upload file fail with error: " . $exception->getMessage() . " code: " . $exception->getCode());
-                return response()->json(['message' => $exception->getMessage()], 400);
-            }
-
-            if ($crmFile->isSuccess()) {
-                //Se il file e stato caricato lo cancello dalla cartella tmp
-                Storage::disk('tmp')->delete($filename);
-            } else {
-                $files_error[] = $filename;
-                $status = false;
-            }
-        }
-        //Controllo se l'utente ha tutti i doc e imposto il flag sul CRM a si se neccessario
-        if ($quotation->hasMandatoryDocuments()) {
-            $fields = [ "documenti_inviati_intermediario" => 'Si'];
-            $crmFactory->updateDeal($quotation, $fields);
-        }
-
-        if ($status) {
-            return response()->json(['message' => 'File uploaded'], 200);
-        }
-
-        return response()->json(['message' => 'Files not uploaded', 'files'=> $files_error], 400);
     }
 
     /**

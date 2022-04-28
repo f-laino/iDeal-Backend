@@ -4,8 +4,8 @@ namespace App\Services\Storages;
 
 use App\Interfaces\Files\FileManagerServiceInterface;
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use SplFileInfo;
 
 class FileManagerService implements FileManagerServiceInterface
 {
@@ -17,16 +17,26 @@ class FileManagerService implements FileManagerServiceInterface
     public const MAX_ALLOWED_SIZE_MB = 20;
 
     /** @var string  */
-    public const DISK = 'files';
+    const DISK = 'files';
 
 
-    /** @inheritDoc */
-    public function putObject(SplFileInfo $file, string $path, array $metaData = []): bool
+    /** @inheritDoc
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws \Exception
+     */
+    public function putObject(UploadedFile $file, string $path, array $metaData = []): bool
     {
         $metaData = $this->addDefaultMetaData($metaData);
-//        $content = file_get_contents($file);
+        $content = $file->get();
 
-        return Storage::disk(self::DISK)->put($path, $file, $metaData);
+        $success = Storage::disk(self::DISK)->put($path, $content, $metaData);
+
+        if(!$success) {
+            $message = "Cannot put object into store disk: " . self::DISK;
+            throw new \Exception($message);
+        }
+
+        return $success;
     }
 
 
@@ -42,7 +52,7 @@ class FileManagerService implements FileManagerServiceInterface
     /**
      * @inheritDoc
      */
-    public static function validateObjectSize(SplFileInfo $file): bool
+    public static function validateObjectSize(UploadedFile $file): bool
     {
         $fileSize = $file->getSize();
         $fileSize = number_format($fileSize / 1048576, 1);

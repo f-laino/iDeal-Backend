@@ -2,11 +2,12 @@
 
 namespace App\Services;
 
-use App\Attachment;
-use App\Customer;
+use App\Models\Attachment;
+use App\Models\Customer;
 use App\Services\Files\FileNameService;
 use App\Services\Storages\FileManagerService;
-use SplFileInfo;
+use Aws\StorageGateway\Exception\StorageGatewayException;
+use Illuminate\Http\UploadedFile;
 
 class AttachmentService
 {
@@ -28,17 +29,17 @@ class AttachmentService
 
     /**
      * @param Customer $customer
-     * @param SplFileInfo $file
+     * @param UploadedFile $file
      * @param string $fileType
      * @return Attachment
      * @throws \Throwable
      */
     public function addCustomerAttachment(
-        Customer $customer, SplFileInfo $file,
+        Customer $customer, UploadedFile $file,
         string $fileType
     ): Attachment
     {
-        $fileExtension = $file->getExtension();
+        $fileExtension = $file->getClientOriginalExtension();
         $offset = $this->getAttachmentsNumber($customer, $fileType);
 
         $fileName = $this->fileNameService->getName($fileExtension, $offset);
@@ -47,9 +48,9 @@ class AttachmentService
         $storagePath = $fileDirectory . $fileName;
 
         //send file to storage
-        $s = $this->fileManager->putObject($file, $storagePath);
-dd($s);
-        return $this->storeCustomerAttachment($customer, $fileType, $fileType, $storagePath);
+        $this->fileManager->putObject($file, $storagePath);
+
+        return $this->storeCustomerAttachment($customer, $fileType, $fileName, $storagePath);
     }
 
 
@@ -84,9 +85,13 @@ dd($s);
      */
     public function getAttachmentsNumber(Customer $customer, string $fileType): int
     {
-        return Attachment::where('entity_id', $customer->id)
-                ->where('type', $fileType)
-                ->count();
+        return Attachment::where(
+            [
+                ['entity_id', $customer->id],
+                ['description', $fileType],
+                ['type', Attachment::TYPE_CUSTOMER],
+            ]
+            )->count();
     }
 
 }

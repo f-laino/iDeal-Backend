@@ -2,19 +2,19 @@
 
 namespace App\Interfaces\Files;
 
-use SplFileInfo;
+use Illuminate\Http\UploadedFile;
 
 interface FileManagerServiceInterface
 {
 
     /**
      * Carica un oggetto all'interno dello storage
-     * @param SplFileInfo $file
+     * @param UploadedFile $file
      * @param string $path
      * @param array $metaData
      * @return bool
      */
-    function putObject(SplFileInfo $file, string $path, array $metaData = []): bool;
+    function putObject(UploadedFile $file, string $path, array $metaData = []): bool;
 
     /**
      * Crea un url di accesso temporaneo
@@ -25,8 +25,8 @@ interface FileManagerServiceInterface
 
     /**
      * Valida la dimensione dell'oggetto
-     * @param SplFileInfo $file
+     * @param UploadedFile $file
      * @return bool
      */
-    static function validateObjectSize(SplFileInfo $file): bool;
+    static function validateObjectSize(UploadedFile $file): bool;
 }
