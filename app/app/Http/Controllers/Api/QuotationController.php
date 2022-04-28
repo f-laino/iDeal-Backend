@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Agent;
-use App\Models\Attachment;
 use App\Models\Customer;
 use App\Factories\CrmFactory;
 use App\Models\Group;
@@ -16,19 +15,16 @@ use App\Models\Quotation;
 use App\Exports\QuotationsExport;
 use App\Facades\Search;
 use App\Services\AttachmentService;
-use App\Services\Files\TemporaryStorageService;
+use App\Services\Storages\TemporaryStorageService;
 use App\Services\PrintService;
 use App\Transformer\ErrorResponseTransformer;
 use App\Transformer\ProposalItemTransformer;
 use App\Transformer\ProposalTransformer;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use League\Fractal\Manager;
-use Storage;
-use SplFileInfo;
 
 /**
  * Il termine deal viene usato come alias di quotation
@@ -262,14 +258,6 @@ class QuotationController extends ApiController
             );
         }
 
-        //valido le entita
-        if ($offer->trashed()) {
-            return response()->json(
-                ['message' => 'Offer not valid'],
-                Response::HTTP_BAD_REQUEST
-            );
-        }
-
         //inizializzo connessione CRM
         $crmFactory = CrmFactory::create($quotation);
 
@@ -282,6 +270,8 @@ class QuotationController extends ApiController
                 $attachment = $attachmentService->addCustomerAttachment($customer, $file, $fileType);
 
                 /* inoltro i file al sistema crm */
+                //todo spostare questa parte sull'integrazione con CRM
+                // in quanto dipende da essa
 
                 //le integrazione funzionano solo con SplFileInfo
                 $fl = $temporaryStorage->storeAndRetrieve($file, $attachment);
@@ -441,5 +431,15 @@ class QuotationController extends ApiController
 
         $response = ['status' => $quotation->status];
         return response()->json(['message' => 'Status updated'], 200);
+    }
+
+    /**
+     * @todo
+     */
+    public function downloadAttachment(
+        Request $request, int $quotationId
+    )
+    {
+        return $this->respondWithSuccess();
     }
 }

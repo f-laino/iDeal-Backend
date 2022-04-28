@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Files;
+namespace App\Services\Storages;
 
 use App\Models\Attachment;
 use Illuminate\Support\Facades\Storage;

@@ -97,6 +97,7 @@ Route::prefix('v1')->group(function () {
     Route::post('quote', 'App\Http\Controllers\Api\QuotationController@store');
 
     Route::post('quotations/documents/upload', 'App\Http\Controllers\Api\QuotationController@attachDocument');
+    Route::post('quotations/{quotationId}/documents/download', 'App\Http\Controllers\Api\QuotationController@downloadAttachments');
     Route::post('quotations/documents/show', 'App\Http\Controllers\Api\QuotationController@showAttachDocuments');
     Route::post('quotations/documents/file', 'App\Http\Controllers\Api\QuotationController@destroyAttachDocuments');
 
