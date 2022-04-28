@@ -12,11 +12,13 @@ use App\Models\CarCategory;
 use App\Models\Fuel;
 use App\Models\Offer;
 use App\Models\OfferAttributes;
+use App\Traits\DateUtils;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SearchService implements SearchServiceInterface
 {
+    use DateUtils;
+
     private static $items = 20;
 
     /**
@@ -35,16 +37,14 @@ class SearchService implements SearchServiceInterface
         $gear = $request->input('gear', NULL);
         $noviceDriver = array_search('noviceDriver', $tags);
 
+        $deliveryTime = $request->input('delivery_time', []);
+
         $deposit = $request->input('deposit', NULL);
         $monthlyRate = $request->input('monthly_rate', NULL);
         $distance = $request->input('distance', NULL);
         $duration = $request->input('duration', NULL);
 
         $kwh = $request->input('kwh', NULL);
-
-        /* Pagination parms */
-        $page = $request->input('page', 1);
-        $items = $request->input('items', self::$items);
 
         //Handle childs offer search
         $onlyWithChilds = FALSE;
@@ -142,6 +142,16 @@ class SearchService implements SearchServiceInterface
                                                     ->pluck('offer_id');
             $query->whereIn('id', $offersWithLeftTags->toArray());
         }
+
+        if (!empty($deliveryTime)) {
+            $deliveryTimes = $this->getMonthsYearsFromRange($deliveryTime[0], $deliveryTime[1]);
+
+            $offersWithDeliveryTime = OfferAttributes::where("type", 'DELIVERY_TIME')
+                                                    ->whereIn('description', array_values($deliveryTimes))
+                                                    ->pluck('offer_id');
+            $query->whereIn('id', $offersWithDeliveryTime->toArray());
+        }
+
         /* Ignore child offers */
         if ( $onlyParent ){
             $query->whereNull('parent_id')->whereIn('id', $agentOffers);
