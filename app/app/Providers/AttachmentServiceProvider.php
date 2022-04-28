@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Interfaces\Files\FileManagerServiceInterface;
 use App\Services\AttachmentService;
 use App\Services\Files\FileNameService;
+use App\Services\Storages\FileManagerService;
 use Illuminate\Support\ServiceProvider;
 
 class AttachmentServiceProvider extends ServiceProvider
@@ -26,7 +27,7 @@ class AttachmentServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $fileManager = $this->app->get('FileService');
+        $fileManager = new FileManagerService();
         $fileNameService = new FileNameService();
 
         $this->app->singleton(

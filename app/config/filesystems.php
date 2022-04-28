@@ -62,7 +62,7 @@ return [
             'secret' => env('FILES_STORAGE_ACCESS_KEY'),
             'region' => env('FILES_STORAGE_REGION'),
             'bucket' => env('FILES_STORAGE_BUCKET'),
-            'visibility' => 'private',
+            'url' => NULL,
         ],
 
     ],

@@ -4,8 +4,8 @@ namespace App\Services\Storages;
 
 use App\Interfaces\Files\FileManagerServiceInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use SplFileInfo;
-use Illuminate\Contracts\Filesystem\Filesystem;
 
 class FileManagerService implements FileManagerServiceInterface
 {
@@ -16,13 +16,8 @@ class FileManagerService implements FileManagerServiceInterface
     /** @var int  */
     public const MAX_ALLOWED_SIZE_MB = 20;
 
-    /** @var Filesystem $filesystem */
-    private $filesystem;
-
-    public function __construct(Filesystem $filesystem)
-    {
-        $this->filesystem = $filesystem;
-    }
+    /** @var string  */
+    public const DISK = 'files';
 
 
     /** @inheritDoc */
@@ -31,7 +26,7 @@ class FileManagerService implements FileManagerServiceInterface
         $metaData = $this->addDefaultMetaData($metaData);
 //        $content = file_get_contents($file);
 
-        return $this->filesystem->put($path, $file, $metaData);
+        return Storage::disk(self::DISK)->put($path, $file, $metaData);
     }
 
 
@@ -41,7 +36,7 @@ class FileManagerService implements FileManagerServiceInterface
         $date = Carbon::now();
         $date->addMinutes(self::SIGNED_URI_TTL);
 
-        return $this->filesystem->temporaryUrl($path, $date);
+        return Storage::disk(self::DISK)->temporaryUrl($path, $date);
     }
 
     /**
