@@ -200,6 +200,15 @@
         @endif
     </div>
 
+    <div class="col-md-4 mt-2">
+        <label for="posti">{{ __('Neopatentati') }} </label>
+        {{ Form::select('neo_patentati', [ false => "No", true => "Si" ],!empty($car)? $car->neo_patentati : old('neo_patentati'),
+                    ['class' => $errors->has('neo_patentati') ? 'form-control is-invalid' : 'form-control', "id" => "neo_patentati"]) }}
+        @if ($errors->has('neo_patentati'))
+            <div class="help-block form-text with-errors form-control-feedback">
+                <strong>{{ $errors->first('neo_patentati') }}</strong></div>
+        @endif
+    </div>
 
 </div>
 

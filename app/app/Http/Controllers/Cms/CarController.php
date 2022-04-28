@@ -14,6 +14,7 @@ use App\Http\Requests\Cms\ImageCreateRequest;
 use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use function Aws\flatmap;
 
 class CarController extends CmsController
 {
@@ -95,7 +96,7 @@ class CarController extends CmsController
         $car->bagagliaio = $request->bagagliaio;
         $car->posti = $request->get('posti', 5);
         $car->porte = $request->get('porte', 5);
-        $car->neo_patentati = TRUE;
+        $car->neo_patentati = $request->get('neo_patentati', false);
         $car->batteria_kwh = $request->get('kwh');
 
         try{
@@ -175,6 +176,7 @@ class CarController extends CmsController
             'posti' => $request->posti,
             'porte' => $request->porte,
             'batteria_kwh' => $request->kwh,
+            'neo_patentati' => $request->neo_patentati,
             ]);
 
             Logger::activity('CarController@Update', $request, $car, $oldCar);
