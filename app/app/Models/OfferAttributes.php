@@ -37,7 +37,6 @@ class OfferAttributes extends Model
     public static function asRule(array $elements)
     {
         $elements = array_keys($elements);
-        array_shift($elements);
         return implode(',', $elements);
     }
 
