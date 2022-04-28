@@ -231,7 +231,7 @@ return [
         App\Providers\HubSportServiceProvider::class,
         App\Providers\PrintServiceProvider::class,
         App\Providers\MetricsServiceProvider::class,
-
+        App\Providers\AttachmentServiceProvider::class,
     ],
 
     /*
@@ -285,7 +285,8 @@ return [
         'HubSpot' =>  App\Facades\HubSpot::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
+        'FileService' => \App\Services\Storages\FileManagerService::class
     ])->toArray(),
 
 ];

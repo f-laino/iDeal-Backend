@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use App\Group;
+use App\Models\Group;
 use App\Models\Service;
 
 class GroupServiceSeeder extends Seeder

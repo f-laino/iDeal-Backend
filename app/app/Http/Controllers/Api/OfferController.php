@@ -7,7 +7,7 @@ use App\Models\Car;
 use App\Common\Models\CustomerService;
 use App\Common\Models\Offers\Generic as GenericOffer;
 use App\Customer;
-use App\Group;
+use App\Models\Group;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\OfferCreateRequest;
 use App\Http\Requests\Api\OfferUpdateRequest;

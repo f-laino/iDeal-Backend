@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Agent;
 use App\Models\Attachment;
+use App\Models\Customer;
 use App\Factories\CrmFactory;
-use App\Group;
+use App\Models\Group;
 use App\Http\Controllers\ApiController;
 use App\Notifications\QuotationAdded;
 use App\Notifications\QuotationCreated;
@@ -14,15 +15,20 @@ use App\Models\Proposal;
 use App\Models\Quotation;
 use App\Exports\QuotationsExport;
 use App\Facades\Search;
+use App\Services\AttachmentService;
+use App\Services\Files\FileNameService;
 use App\Services\PrintService;
 use App\Transformer\ErrorResponseTransformer;
 use App\Transformer\ProposalItemTransformer;
 use App\Transformer\ProposalTransformer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use League\Fractal\Manager;
 use Storage;
+use SplFileInfo;
 
 /**
  * Il termine deal viene usato come alias di quotation
@@ -219,6 +225,81 @@ class QuotationController extends ApiController
      * )
      */
     public function attachDocument(Request $request)
+    {
+        /** @var Agent $agent */
+        $agent = auth('api')->user();
+
+        /** @var AttachmentService $attachmentService */
+        $attachmentService = app(AttachmentService::class);
+
+        $quotationId = $request->get('quotation');
+        $fileType = $request->get('file_type', 'UNKNOWN');
+
+        $files = $request->allFiles();
+
+        //Preparo le entita coninvolte nell'operazione
+        try {
+            /** @var Quotation $quotation */
+            $quotation = $agent->quotations()
+                        ->where("quotations.id", $quotationId)
+                        ->firstOrFail();
+
+            /** @var Proposal $proposal */
+            $proposal = $quotation->proposal;
+
+            /** @var Customer $customer */
+            $customer = $proposal->customer;
+
+            /** @var Offer $offer */
+            $offer = $proposal->offer;
+
+        } catch (\Exception $exception) {
+            return response()->json(['message' => 'Quotation not found'], Response::HTTP_BAD_REQUEST);
+        }
+
+        //valido le entita
+//        if ($offer->trashed()) {
+//            return response()->json(['message' => 'Offer not valid'], Response::HTTP_BAD_REQUEST);
+//        }
+
+        //inizializzo connessione CRM
+        $crmFactory = CrmFactory::create($quotation);
+
+        //inizio la gestione degli attachments
+        try {
+            /** @var UploadedFile $file */
+            foreach ($files as $file) {
+                $extension = $file->getClientOriginalExtension();
+
+                $realPath = $file->getPath() . ".{$extension}";
+                $fl = new SplFileInfo($realPath);
+
+                //salvo il file nello storage dedicato
+                $store = $attachmentService->addCustomerAttachment($customer, $fl, $fileType);
+                dd($store);
+                //inoltro i file al sistema crm
+//                $crmFactory->addFile($file, $customer);
+            }
+        } catch (\Exception $exception) {
+            Log::channel('docs')
+                ->error("Upload file fail with error: " . $exception->getMessage() . " code: " . $exception->getCode());
+            return response()->json(
+                    ['message' => $exception->getMessage()],
+                    Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        //Controllo se l'utente ha tutti i doc e imposto il flag sul CRM a si se neccessario
+        if ($quotation->hasMandatoryDocuments()) {
+            $fields = [ "documenti_inviati_intermediario" => 'Si'];
+            $crmFactory->updateDeal($quotation, $fields);
+        }
+
+        return response()->json(['message' => 'File uploaded'], Response::HTTP_OK);
+
+    }
+
+    public function attachDocumentBk(Request $request)
     {
         /** @var Agent $agent */
         $agent = auth('api')->user();

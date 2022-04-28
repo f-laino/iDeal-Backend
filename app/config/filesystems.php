@@ -56,6 +56,15 @@ return [
             'throw' => false,
         ],
 
+        'files' => [
+            'driver' => 's3',
+            'key' => env('FILES_STORAGE_KEY_ID'),
+            'secret' => env('FILES_STORAGE_ACCESS_KEY'),
+            'region' => env('FILES_STORAGE_REGION'),
+            'bucket' => env('FILES_STORAGE_BUCKET'),
+            'visibility' => 'private',
+        ],
+
     ],
 
     /*

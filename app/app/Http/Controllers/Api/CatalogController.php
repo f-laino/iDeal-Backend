@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\ApiController;
 use App\Models\Agent;
-use App\Group;
+use App\Models\Group;
 use App\Models\Offer;
 use App\Transformer\Catalog\OfferTransformer;
 use Illuminate\Http\Request;

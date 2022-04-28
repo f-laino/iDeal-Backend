@@ -2,7 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Agent;
-use App\Group;
+use App\Models\Group;
 use App\Http\Controllers\ApiController;
 use App\Models\Promotion;
 use App\Transformer\PromotionItemTransformer;
