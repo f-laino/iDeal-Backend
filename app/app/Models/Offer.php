@@ -18,6 +18,7 @@ use Mockery\Exception;
  * @property integer $id
  * @property integer|null $parent_id
  * @property string $code
+ * @property string $reference_code
  * @property integer $car_id
  * @property float $monthly_rate
  * @property float|null $web_monthly_rate
@@ -25,6 +26,7 @@ use Mockery\Exception;
  * @property integer $distance
  * @property integer $duration
  * @property string $broker
+ * @property string $notes
  * @property boolean $suggested
  * @property integer|null $owner_id
  * @property boolean $is_custom
@@ -430,6 +432,13 @@ class Offer extends Model
         return  $onlyMain ?
             self::whereNull('parent_id')->where('broker', $broker) :
             self::whereNotNull('parent_id')->where('broker', $broker);
+    }
+
+    public function generateCloneCode()
+    {
+        $originaleCode = explode('-', $this->code, -1);
+        $originaleCode = implode('-', $originaleCode);
+        return strtolower($originaleCode . "-" . str_random(4));
     }
 
     /**

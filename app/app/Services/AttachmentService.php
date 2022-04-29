@@ -6,7 +6,6 @@ use App\Models\Attachment;
 use App\Models\Customer;
 use App\Services\Files\FileNameService;
 use App\Services\Storages\FileManagerService;
-use Aws\StorageGateway\Exception\StorageGatewayException;
 use Illuminate\Http\UploadedFile;
 
 class AttachmentService
@@ -20,8 +19,7 @@ class AttachmentService
     public function __construct(
         FileManagerService $fileManager,
         FileNameService $fileNameService
-    )
-    {
+    ) {
         $this->fileManager = $fileManager;
         $this->fileNameService = $fileNameService;
     }
@@ -35,10 +33,10 @@ class AttachmentService
      * @throws \Throwable
      */
     public function addCustomerAttachment(
-        Customer $customer, UploadedFile $file,
+        Customer $customer,
+        UploadedFile $file,
         string $fileType
-    ): Attachment
-    {
+    ): Attachment {
         $fileExtension = $file->getClientOriginalExtension();
         $offset = $this->getAttachmentsNumber($customer, $fileType);
 
@@ -63,10 +61,11 @@ class AttachmentService
      * @throws \Throwable
      */
     public function storeCustomerAttachment(
-        Customer $customer, string $fileType,
-        string $fileName, string $path
-    ): Attachment
-    {
+        Customer $customer,
+        string $fileType,
+        string $fileName,
+        string $path
+    ): Attachment {
         $attachment = new Attachment;
         $attachment->type = Attachment::TYPE_CUSTOMER;
         $attachment->entity_id = $customer->id;
@@ -91,7 +90,6 @@ class AttachmentService
                 ['description', $fileType],
                 ['type', Attachment::TYPE_CUSTOMER],
             ]
-            )->count();
+        )->count();
     }
-
 }

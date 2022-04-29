@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('catalog')->controller('App\Http\Controllers\Api\CatalogController')->group(function () {
         Route::get('{code}', 'getOffer');
         Route::delete('{code}', 'deleteOffer');
+        Route::post('{code}/clone', 'cloneOffer');
     });
 
     /*

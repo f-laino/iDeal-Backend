@@ -91,7 +91,7 @@ class CatalogController extends ApiController
             /** @var Offer $offer */
             $offer = Offer::findByCode($code);
 
-            /** @var \App\Agent $agent */
+            /** @var Agent $agent */
             $agent = auth('api')->user();
 
             if ($offer->canBeUpdated($agent)) {
@@ -156,7 +156,7 @@ class CatalogController extends ApiController
             /** @var Offer $offer */
             $offer = Offer::findByCode($code);
 
-            /** @var \App\Agent $agent */
+            /** @var Agent $agent */
             $agent = auth('api')->user();
 
             if ($offer->canBeUpdated($agent)) {
@@ -164,7 +164,7 @@ class CatalogController extends ApiController
 
                 foreach ($clones as $clone) {
                     $newOffer = $offer->replicate();
-                    $newOffer->code = $offer->car->generateCode();
+                    $newOffer->code = $offer->generateCloneCode();
                     $newOffer->reference_code = $clone['reference'];
                     $newOffer->notes = $clone['notes'];
                     $newOffer->push();

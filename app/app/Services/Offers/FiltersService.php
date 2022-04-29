@@ -6,8 +6,8 @@ use App\Models\Agent;
 use App\Models\Brand;
 use App\Models\Fuel;
 use App\Models\CarCategory;
-use App\Facades\Search;
 use App\Models\OfferAttributes;
+use App\Facades\Search;
 use App\Traits\DateUtils;
 use App\Common\Models\RangeFilter;
 use App\Common\Models\GenericFilter;
@@ -42,7 +42,7 @@ class FiltersService
         $this->setRequest($request);
 
         $agentOffers = $agent->offers()
-                             ->where('offers.status', true);
+            ->where('offers.status', true);
 
         $offers = Search::offers($request, $agent);
 

@@ -13,10 +13,11 @@ class FileNameService
      * @return string
      */
     public function getPath(
-        string $customerId, string $fileType,
-        string $fileExtension, int $offset = 0
-    ): string
-    {
+        string $customerId,
+        string $fileType,
+        string $fileExtension,
+        int $offset = 0
+    ): string {
         $path = $this->getDirectory($customerId, $fileType);
         $name = $this->getName($fileExtension, $offset);
 

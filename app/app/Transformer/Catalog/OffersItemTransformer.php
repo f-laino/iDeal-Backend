@@ -27,6 +27,8 @@ class OffersItemTransformer extends BaseTransformer
             'model' => $car->descrizione_serie_gamma,
             'version' => $car->version,
             'code' => $offer->code,
+            'reference_code' => $offer->reference_code,
+            'notes' => $offer->notes,
             'monthly_rate' => intval($offer->monthly_rate),
             'deposit' => intval($offer->deposit),
             'duration' => intval($offer->duration),

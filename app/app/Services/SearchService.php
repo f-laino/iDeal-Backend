@@ -357,9 +357,6 @@ class SearchService implements SearchServiceInterface
         $page = $request->input('page', 1);
         $items = $request->input('items', self::$items * 20);
 
-        $onlyParent = TRUE;
-        $onlyWithChilds = FALSE;
-
         $cars = Car::orderBy('modello', 'asc');
         $brands = Brand::orderBy('name', 'asc');
         $brands = $brands->pluck('id');

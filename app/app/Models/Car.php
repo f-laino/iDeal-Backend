@@ -561,9 +561,7 @@ class Car extends Model
      */
     public function generateCode()
     {
-        $code = preg_replace('/[^\p{L}\p{N}\s]/u', '', $this->allestimento);
-        $code = str_replace(' ', '-', $code);
-        $code = strtolower(Str::random(4) . '-' . $code) ;
+        $code = strtolower($this->codice_motornet . "-" . str_random(4));
         return $code;
     }
 

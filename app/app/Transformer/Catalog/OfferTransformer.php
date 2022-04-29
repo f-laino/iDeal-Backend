@@ -18,12 +18,15 @@ use App\Transformer\ChildOfferTransformer;
  *  ),
  *  @OA\Property(property="code", type="string", example="ltpc--sportback-30-16-tdi-116cv"),
  *  @OA\Property(property="ref", type="integer", example="63800"),
+ *  @OA\Property(property="reference_code", type="string", example="EF766HG"),
+ *  @OA\Property(property="notes", type="string", example="Rossa, cambio automatico"),
  *  @OA\Property(property="deposit", type="string", example="5000.00"),
  *  @OA\Property(property="duration", type="integer", example="48"),
  *  @OA\Property(property="distance", type="integer", example="24000"),
  *  @OA\Property(property="monthly_rate", type="string", example="999.00"),
  *  @OA\Property(property="services", type="array", @OA\Items()),
  *  @OA\Property(property="options", type="array", @OA\Items()),
+ *  @OA\Property(property="rightLabel", type="object", @OA\Items()),
  * )
  */
 class OfferTransformer extends BaseTransformer
@@ -37,6 +40,8 @@ class OfferTransformer extends BaseTransformer
         return [
             'code' => $offer->code,
             'ref' => $offer->id,
+            'reference_code' => $offer->reference_code,
+            'notes' => $offer->notes,
             'deposit' => (string) $offer->deposit,
             'duration' => (int)$offer->duration,
             'distance' => (int)$offer->distance,

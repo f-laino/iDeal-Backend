@@ -64,7 +64,7 @@ class OfferController extends ApiController
         try {
             /** @var Agent $agent */
             $agent = auth('api')->user();
-            $offer = $agent->offers()->where("code", $code)->firstOrFail();
+            $offer = $agent->offers()->where("code", $code)->firstOrFail(); // getAgentOfferByCode($code, $agent)
             return $this->respondWithItem($offer, new OfferTransformer);
         } catch (\Exception $exception) {
             return $this->respondWithItem($exception, new ErrorResponseTransformer);
