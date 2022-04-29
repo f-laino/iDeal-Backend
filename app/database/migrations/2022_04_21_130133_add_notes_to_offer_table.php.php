@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIdNotesOfferTable extends Migration
+class AddNotesToOfferTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,6 @@ class AddIdNotesOfferTable extends Migration
     public function up()
     {
         Schema::table('offers', function (Blueprint $table) {
-            $table->string('reference_code')
-                    ->after('code')
-                    ->nullable();
             $table->text('notes')
                     ->after('broker')
                     ->nullable();
@@ -31,7 +28,6 @@ class AddIdNotesOfferTable extends Migration
     public function down()
     {
         Schema::table('offers', function (Blueprint $table) {
-            $table->dropColumn('reference_code');
             $table->dropColumn('notes');
         });
     }

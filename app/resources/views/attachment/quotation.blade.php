@@ -158,6 +158,9 @@
         @if(!empty($color))
         &nbsp;{{ $color }}
         @endif
+        @if(!empty($referenceCode))
+        &nbsp;{{ $referenceCode }}
+        @endif
     </p>
     <img
         src="{{ $image }}"
@@ -186,6 +189,13 @@
     </ul>
     <hr/>
 </div>
+
+@if(!empty($offer->notes))
+<div class="accessories">
+    {{ $offer->notes }}
+</div>
+<hr/>
+@endif
 
 @if(!empty($proposal->car_accessories))
     <div class="accessories">

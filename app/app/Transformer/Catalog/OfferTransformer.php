@@ -40,7 +40,7 @@ class OfferTransformer extends BaseTransformer
         return [
             'code' => $offer->code,
             'ref' => $offer->id,
-            'reference_code' => $offer->reference_code,
+            'reference_code' => !empty($offer->referenceCode) ? $offer->referenceCode->value : '',
             'notes' => $offer->notes,
             'deposit' => (string) $offer->deposit,
             'duration' => (int)$offer->duration,

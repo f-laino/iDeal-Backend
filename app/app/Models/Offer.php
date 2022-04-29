@@ -18,7 +18,6 @@ use Mockery\Exception;
  * @property integer $id
  * @property integer|null $parent_id
  * @property string $code
- * @property string $reference_code
  * @property integer $car_id
  * @property float $monthly_rate
  * @property float|null $web_monthly_rate
@@ -146,6 +145,15 @@ class Offer extends Model
     public function leftLabel()
     {
         return $this->hasOne('App\Models\OfferAttributes', 'offer_id')->where('type', 'LEFT_LABEL');
+    }
+
+    /**
+     * Ritorna l'attributo reference code
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function referenceCode()
+    {
+        return $this->hasOne('App\Models\OfferAttributes', 'offer_id')->where('type', 'REFERENCE_CODE');
     }
 
     /**
@@ -436,9 +444,7 @@ class Offer extends Model
 
     public function generateCloneCode()
     {
-        $originaleCode = explode('-', $this->code, -1);
-        $originaleCode = implode('-', $originaleCode);
-        return strtolower($originaleCode . "-" . str_random(4));
+        return strtolower($this->code . "-" . str_random(4));
     }
 
     /**

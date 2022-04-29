@@ -101,8 +101,10 @@ class OfferTransformer extends BaseTransformer
         return [
             'code' => $offer->code,
             'ref' => $offer->id,
+            'reference_code' => !empty($offer->referenceCode) ? $offer->referenceCode->value : '',
             'car' => $car,
             'color' => $offer->getColorName(),
+            'notes' => nl2br($offer->notes),
             'deposit' => (int) $offer->deposit,
             'duration' => (int)$offer->duration,
             'distance' => (int)$offer->distance,

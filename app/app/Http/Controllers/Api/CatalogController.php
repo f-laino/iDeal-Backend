@@ -124,10 +124,13 @@ class CatalogController extends ApiController
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(
-     *       type="array",
-     *       @OA\Items(property="reference", type="string"),
-     *       @OA\Items(property="notes", type="string"),
-     *       @OA\Items(property="active", type="boolean"),
+     *       @OA\Property(
+     *         name="data"
+     *         type="array",
+     *         @OA\Items(property="reference", type="string"),
+     *         @OA\Items(property="notes", type="string"),
+     *         @OA\Items(property="active", type="boolean"),
+     *       )
      *     )
      *   ),
      *   @OA\Response(
@@ -145,11 +148,11 @@ class CatalogController extends ApiController
      */
     public function cloneOffer(Request $request, string $code)
     {
-        $clones = $request->json()->all();
+        $clones = $request->get('data');
         $clonesCount = count($clones);
 
         if ($clonesCount < 1) {
-            $clones[] = ['reference' => null, 'notes' => null, 'active' => true];
+            $clones[] = ['reference' => null, 'notes' => null, 'active' => false];
         }
 
         try {
@@ -165,7 +168,6 @@ class CatalogController extends ApiController
                 foreach ($clones as $clone) {
                     $newOffer = $offer->replicate();
                     $newOffer->code = $offer->generateCloneCode();
-                    $newOffer->reference_code = $clone['reference'];
                     $newOffer->notes = $clone['notes'];
                     $newOffer->push();
 
@@ -175,11 +177,7 @@ class CatalogController extends ApiController
                     $clonesCodes[] = $newOffer->code;
                 }
 
-                if (count($clonesCodes) === 1) {
-                    return response()->json(['newCode' => $clonesCodes[0]], 201);
-                } else {
-                    return response()->json(['newCodes' => $clonesCodes], 201);
-                }
+                return response()->json(['newCodes' => $clonesCodes], 201);
             } else {
                 return response()->json(['msg' =>"Unauthorized"], 401);
             }

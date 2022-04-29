@@ -3,32 +3,29 @@
 namespace App\Models;
 
 use App\Constants\HubSpot\AgentProperties;
-use App\Helpers\Models\AgentHelper;
-use App\Helpers\Models\ConsentHelper;
-use App\Interfaces\HubSpotServiceInterface;
-use App\Notifications\Agent\AccountSuspendedNotification;
-use App\Notifications\Agent\CustomOfferRequestedNotification;
-use App\Notifications\AgentCreated;
-use App\Notifications\ApiService\SuspendSubscription;
-use App\Notifications\ForgotAgentPassword;
 use App\Models\Quotation;
 use App\Traits\AccountStatus;
 use App\Traits\Filters;
 use App\Traits\HubSpotIds;
 use App\Traits\NameFormatter;
+use App\Helpers\Models\AgentHelper;
+use App\Common\Models\Offers\Generic;
+use App\Helpers\Models\ConsentHelper;
+use App\Interfaces\HubSpotServiceInterface;
+use App\Notifications\AgentCreated;
+use App\Notifications\ForgotAgentPassword;
+use App\Notifications\Agent\AccountSuspendedNotification;
+use App\Notifications\Agent\CustomOfferRequestedNotification;
 use Carbon\Carbon;
-use Devio\Pipedrive\PipedriveFacade as Pipedrive;
-use http\Exception\RuntimeException;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\UnauthorizedException;
-use Mockery\Exception;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
@@ -412,9 +409,9 @@ class Agent extends Authenticatable implements JWTSubject
 
     /**
      * @param Customer $customer
-     * @param Common\Models\Offers\Generic $offer
+     * @param Generic $offer
      */
-    public function sendCustomOfferRequestedNotification(Customer $customer, Common\Models\Offers\Generic $offer)
+    public function sendCustomOfferRequestedNotification(Customer $customer, Generic $offer)
     {
         $notification = new CustomOfferRequestedNotification($this, $customer, $offer);
         $this->notify($notification);

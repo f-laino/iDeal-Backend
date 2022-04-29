@@ -119,7 +119,6 @@ class OfferController extends ApiController
         $offer = new Offer;
         $offer->code = $car->generateCode();
         $offer->car_id = $car->id;
-        $offer->reference_code = $request->reference_code;
         $offer->monthly_rate = $request->monthly_rate;
         $offer->web_monthly_rate = $request->monthly_rate;
         $offer->deposit = $request->deposit;
@@ -152,6 +151,15 @@ class OfferController extends ApiController
                     'description' => $request->rightLabel['label']
                  ]);
                  $label->saveOrFail();
+            }
+
+            if ($request->reference_code) {
+                $reference_code = new OfferAttributes([
+                    'offer_id'=> $offer->id,
+                    'type' => "REFERENCE_CODE",
+                    'value' => $request->reference_code,
+                 ]);
+                 $reference_code->saveOrFail();
             }
 
             $members = Group::getMembers($agent);
@@ -218,7 +226,6 @@ class OfferController extends ApiController
                 $offer->code = $car->generateCode();
             }
 
-            $offer->reference_code = $request->reference_code;
             $offer->monthly_rate = $request->monthly_rate;
             $offer->web_monthly_rate = $request->monthly_rate;
             $offer->deposit = $request->deposit;
@@ -239,6 +246,15 @@ class OfferController extends ApiController
                     ]);
                     $label->saveOrFail();
                 }
+            }
+
+            if ($request->reference_code) {
+                $reference_code = new OfferAttributes([
+                    'offer_id'=> $offer->id,
+                    'type' => "REFERENCE_CODE",
+                    'value' => $request->reference_code,
+                 ]);
+                 $reference_code->saveOrFail();
             }
         } catch (Exception $exception) {
             return $this->respondWithItem($exception, new ErrorResponseTransformer);

@@ -101,6 +101,8 @@ class PrintService implements PrintServiceInterface
         $carModel = $car->allestimento;
         $color = $offer->getColorName();
 
+        $referenceCode = !empty($offer->referenceCode) ? $offer->referenceCode->value : null;
+
         //franchigie
         $franchigie = $parentOffer->getFranchigie();
 
@@ -116,6 +118,7 @@ class PrintService implements PrintServiceInterface
             'franchigie',
             'documents',
             'carName',
+            'referenceCode',
             'carModel',
             'accessories',
             'limit',
