@@ -4,17 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Agent;
 use App\Models\Car;
+use App\Models\Customer;
+use App\Models\Group;
+use App\Models\Offer;
+use App\Models\OfferAttributes;
 use App\Common\Models\CustomerService;
 use App\Common\Models\Offers\Generic as GenericOffer;
-use App\Customer;
-use App\Models\Group;
+use App\Services\Offers\OfferService;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\OfferCreateRequest;
 use App\Http\Requests\Api\OfferUpdateRequest;
 use App\Http\Requests\Api\RequestNewOfferRequest;
 use App\Notifications\Requests\NewOffer;
-use App\Models\Offer;
-use App\Models\OfferAttributes;
 use App\Transformer\ErrorResponseTransformer;
 use App\Transformer\OfferTransformer;
 use App\Transformer\SuccessResponseTransformer;
@@ -108,66 +109,19 @@ class OfferController extends ApiController
      *   )
      * )
      */
-    public function create(OfferCreateRequest $request)
+    public function create(OfferCreateRequest $request, OfferService $offerService)
     {
+        /** @var Agent $agent */
         $agent = auth('api')->user();
 
-        /** @var Car $car */
-        $car = Car::find($request->car);
+        $offer = $offerService->createFromRequest($request, $agent);
 
-        /** @var Offer $offer */
-        $offer = new Offer;
-        $offer->code = $car->generateCode();
-        $offer->car_id = $car->id;
-        $offer->monthly_rate = $request->monthly_rate;
-        $offer->web_monthly_rate = $request->monthly_rate;
-        $offer->deposit = $request->deposit;
-        $offer->distance = $request->distance;
-        $offer->duration = $request->duration;
-        $offer->notes = $request->notes;
-        $offer->broker = $agent->myGroup->name;
-        $offer->owner_id = $agent->id;
-        $offer->is_custom = true;
-        $offer->status = true;
-        $offer->highlighted = false;
+        $offerService->addLeftLabel($offer, 'catalogo', 'Catalogo');
 
-        try {
-            $offer->saveOrFail();
+        $offerService->attachAgentMembersToOffer($offer, $agent);
 
-            /** @var OfferAttributes $label */
-            $label = new OfferAttributes([
-               'offer_id'=> $offer->id,
-               'type' => "LEFT_LABEL",
-               'value' => "catalogo",
-               'description' => "Catalogo"
-            ]);
-            $label->saveOrFail();
+        $response = ['code' => $offer->code];
 
-            if ($request->rightLabel && $request->rightLabel['key'] && $request->rightLabel['label']) {
-                $label = new OfferAttributes([
-                    'offer_id'=> $offer->id,
-                    'type' => "RIGHT_LABEL",
-                    'value' => $request->rightLabel['key'],
-                    'description' => $request->rightLabel['label']
-                 ]);
-                 $label->saveOrFail();
-            }
-
-            if ($request->reference_code) {
-                $reference_code = new OfferAttributes([
-                    'offer_id'=> $offer->id,
-                    'type' => "REFERENCE_CODE",
-                    'value' => $request->reference_code,
-                 ]);
-                 $reference_code->saveOrFail();
-            }
-
-            $members = Group::getMembers($agent);
-            $offer->attachAgents($members, true);
-        } catch (Exception $exception) {
-            return $this->respondWithItem($exception, new ErrorResponseTransformer);
-        }
-        $response = [ "code" => $offer->code ];
         return $this->respondWithItem($response, new SuccessResponseTransformer);
     }
 

@@ -16,15 +16,13 @@ use App\Transformer\CarsCategoryTransformer;
 use App\Transformer\FilterTransformer;
 use App\Transformer\FuelTransformer;
 use App\Transformer\GenericFilterTransformer;
+use App\Abstracts\Responder;
 use Illuminate\Http\Request;
 use League\Fractal\Manager;
-use League\Fractal\Resource\Collection;
 
-class FiltersService
+class FiltersService extends Responder
 {
     use DateUtils;
-
-    protected $fractal;
 
     /** @var Agent $agent */
     protected $agent;
@@ -34,10 +32,10 @@ class FiltersService
 
     public function __construct(Manager $fractal)
     {
-        $this->fractal = $fractal;
+        parent::__construct($fractal);
     }
 
-    public function getOffersFiltersByRequest(Request $request, Agent $agent)
+    public function getOffersFiltersByRequest(Request $request, Agent $agent): array
     {
         $this->setRequest($request);
 
@@ -93,7 +91,7 @@ class FiltersService
         $this->request = $request;
     }
 
-    private function getMonthlyRatesFilterFromOffers($offers, $filteredOffers)
+    private function getMonthlyRatesFilterFromOffers($offers, $filteredOffers): RangeFilter
     {
         $offersRepo = $this->request->has('monthly_rate') ? $offers : $filteredOffers->get();
 
@@ -103,7 +101,7 @@ class FiltersService
         return new RangeFilter($min, $max, 1, '€');
     }
 
-    private function getDepositsFilterFromOffers($offers, $filteredOffers)
+    private function getDepositsFilterFromOffers($offers, $filteredOffers): RangeFilter
     {
         $offersRepo = $this->request->has('deposit') ? $offers : $filteredOffers->get();
 
@@ -113,7 +111,7 @@ class FiltersService
         return new RangeFilter($min, $max, 1000, '€');
     }
 
-    private function getDurationsFilterFromOffers($offers, $filteredOffers)
+    private function getDurationsFilterFromOffers($offers, $filteredOffers): array
     {
         $offersRepo = $this->request->has('duration') ? $offers : $filteredOffers;
 
@@ -132,7 +130,7 @@ class FiltersService
         return $durations;
     }
 
-    private function getDistancesFilterFromOffers($offers, $filteredOffers)
+    private function getDistancesFilterFromOffers($offers, $filteredOffers): array
     {
         $offersRepo = $this->request->has('distance') ? $offers : $filteredOffers;
 
@@ -151,7 +149,7 @@ class FiltersService
         return $distances;
     }
 
-    private function getDeliveryTimesFilter()
+    private function getDeliveryTimesFilter(): array
     {
         $delivery_times_items = $this->getMonthsYearsFromToday(true);
         $delivery_times = [];
@@ -163,7 +161,7 @@ class FiltersService
         return $delivery_times;
     }
 
-    public function getOrders()
+    public function getOrders(): array
     {
         return [
             new GenericFilter('price-up', 'Rata crescente'),
@@ -171,7 +169,7 @@ class FiltersService
         ];
     }
 
-    public function getGearsFilter()
+    public function getGearsFilter(): array
     {
         return [
             new GenericFilter('Automatico', 'Automatico'),
@@ -179,14 +177,14 @@ class FiltersService
         ];
     }
 
-    public function getNoviceDriverFilter()
+    public function getNoviceDriverFilter(): array
     {
         return [
             new GenericFilter('noviceDriver', 'Neopatentato'),
         ];
     }
 
-    public function getKwhFilter()
+    public function getKwhFilter(): array
     {
         return [
             new GenericFilter('0-30', 'da 0 a 30 kWh'),
@@ -196,30 +194,22 @@ class FiltersService
         ];
     }
 
-    private function getMinValueFromOffersByKey($offers, $key)
+    private function getMinValueFromOffersByKey($offers, $key): int
     {
         $value = $offers->min($key);
         return (int)$value;
     }
 
-    private function getMaxValueFromOffersByKey($offers, $key)
+    private function getMaxValueFromOffersByKey($offers, $key): int
     {
         $value = $offers->max($key);
         return (int)$value;
     }
 
-    private function getRoundedMaxValueFromOffersByKey($offers, $key, $roundNum)
+    private function getRoundedMaxValueFromOffersByKey($offers, $key, $roundNum): int
     {
         $value = $offers->max($key);
         $value = round($value, $roundNum);
         return (int)$value;
-    }
-
-    private function respondWithCollection($collection, $transformer)
-    {
-        $resource = new Collection($collection, $transformer);
-        $data = $this->fractal->createData($resource);
-        $dataArray = $data->toArray();
-        return $dataArray['data'];
     }
 }

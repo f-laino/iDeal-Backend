@@ -60,53 +60,24 @@ class OfferController extends CmsController
         return view('offer.create', compact('brands', 'segments', 'brokers', 'customCars', 'deliveryTimes'));
     }
 
-    public function store(OfferStoreRequest $request)
+    public function store(OfferStoreRequest $request, OfferService $offerService)
     {
         Logger::request('OfferController@Store', $request);
 
-        $customCar = $request->get('custom_car', NULL);
-        $suggested = $request->get('suggested', FALSE);
+        $offer = $offerService->createFromRequest($request);
 
-        $isCustomEnabled = $request->get('custom-car-enabled', NULL);
-        $isCustomEnabled = boolval($isCustomEnabled);
-
-        if(!empty($customCar) && $isCustomEnabled){
-            $car = Car::findOrFail($customCar);
-        } else {
-            list($motornet, $eurotax) = explode( '-', $request->carversion);
-            $car = new Car;
-            $options = [
-                'codice_motornet' => $motornet,
-                'codice_eurotax' => $eurotax,
-            ];
-            $car = $car->saveOrFail($options);
-        }
-
-        $offer = new Offer;
-        $offer->code = $request->code;
-        $offer->car_id = $car->id;
-        $offer->broker = $request->broker;
-        $offer->deposit = $request->deposit;
-        $offer->distance = $request->distance;
-        $offer->duration = $request->duration;
-        $offer->monthly_rate = $request->monthly_rate;
-        $offer->web_monthly_rate = $request->monthly_rate;
-        $offer->status = TRUE;
-        $offer->suggested = $suggested;
-        $offer->highlighted = FALSE;
-
-        try{
-            $offer->saveOrFail();
-
+        try {
             $offer->attachDefaultServices();
 
             $offer->attachAllAgents();
+
             Logger::activity('OfferController@Store', $request, $offer);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return back()->with('error', $exception->getMessage());
         }
 
-        return redirect(route('offer.edit', ['offer' => $offer->id]))->with('success', 'Offerta aggiunta con successo');
+        return redirect(route('offer.edit', ['offer' => $offer->id]))
+                ->with('success', 'Offerta aggiunta con successo');
 
     }
 
