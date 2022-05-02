@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Customer;
+use App\Models\Customer;
 use App\Http\Controllers\ApiController;
 use App\Transformer\CustomerFormTransformer;
 use App\Transformer\CustomerItemTransformer;
@@ -81,6 +81,7 @@ class CustomersController extends ApiController
     public function show(int $code)
     {
         try {
+            /** @var Agent $agent */
             $agent = auth('api')->user();
             $customer = $agent->customers()->where("customer_id", $code)->firstOrFail();
             return $this->respondWithItem($customer, new CustomerTransformer());

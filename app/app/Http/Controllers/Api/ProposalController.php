@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Agent;
-use App\Customer;
+use App\Models\Customer;
 use App\Http\Controllers\ApiController;
 use App\Models\Proposal;
 use App\Models\Quotation;
 use App\Services\PrintService;
 use App\Transformer\ErrorResponseTransformer;
 use App\Transformer\ProposalTransformer;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use League\Fractal\Manager;
