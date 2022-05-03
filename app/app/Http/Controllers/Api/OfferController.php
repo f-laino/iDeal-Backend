@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Models\Agent;
 use App\Models\Car;
 use App\Models\Customer;
-use App\Models\Group;
 use App\Models\Offer;
 use App\Models\OfferAttributes;
 use App\Common\Models\CustomerService;
 use App\Common\Models\Offers\Generic as GenericOffer;
-use App\Services\Offers\OfferService;
+use App\Services\Offers\OfferApiService;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\Api\OfferCreateRequest;
 use App\Http\Requests\Api\OfferUpdateRequest;
@@ -109,7 +108,7 @@ class OfferController extends ApiController
      *   )
      * )
      */
-    public function create(OfferCreateRequest $request, OfferService $offerService)
+    public function create(OfferCreateRequest $request, OfferApiService $offerService)
     {
         /** @var Agent $agent */
         $agent = auth('api')->user();
@@ -166,54 +165,16 @@ class OfferController extends ApiController
      *   )
      * )
      */
-    public function update(OfferUpdateRequest $request, string $code)
+    public function update(OfferUpdateRequest $request, string $code, OfferApiService $offerService)
     {
-        /** @var Car $car */
-        $car = Car::find($request->car);
-
-        /** @var Offer $offer */
-        $offer = Offer::findByCode($code);
-
         try {
-            if ($offer->car_id !== $car->id) {
-                $offer->car_id = $car->id;
-                $offer->code = $car->generateCode();
-            }
-
-            $offer->monthly_rate = $request->monthly_rate;
-            $offer->web_monthly_rate = $request->monthly_rate;
-            $offer->deposit = $request->deposit;
-            $offer->distance = $request->distance;
-            $offer->duration = $request->duration;
-            $offer->notes = $request->notes;
-            $offer->update();
-
-            if ($request->rightLabel && $request->rightLabel['key'] !== $offer->rightLabel) {
-                OfferAttributes::deleteOfferAttribute($offer, 'RIGHT_LABEL');
-
-                if ($request->rightLabel['key'] && $request->rightLabel['label']) {
-                    $label = new OfferAttributes([
-                        'offer_id'=> $offer->id,
-                        'type' => "RIGHT_LABEL",
-                        'value' => $request->rightLabel['key'],
-                        'description' => $request->rightLabel['label']
-                    ]);
-                    $label->saveOrFail();
-                }
-            }
-
-            if ($request->reference_code) {
-                $reference_code = new OfferAttributes([
-                    'offer_id'=> $offer->id,
-                    'type' => "REFERENCE_CODE",
-                    'value' => $request->reference_code,
-                 ]);
-                 $reference_code->saveOrFail();
-            }
+            $offer = $offerService->updateFromRequest($request, $code);
         } catch (Exception $exception) {
             return $this->respondWithItem($exception, new ErrorResponseTransformer);
         }
-        $response = ["code" => $offer->code];
+
+        $response = ['code' => $offer->code];
+
         return $this->respondWithItem($response, new SuccessResponseTransformer);
     }
 

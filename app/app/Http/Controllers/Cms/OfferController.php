@@ -19,6 +19,7 @@ use App\Models\Service;
 use App\Models\WebsiteBrand;
 use App\Models\WebsiteOffer;
 use App\Traits\DateUtils;
+use App\Services\Offers\OfferCmsService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -60,16 +61,12 @@ class OfferController extends CmsController
         return view('offer.create', compact('brands', 'segments', 'brokers', 'customCars', 'deliveryTimes'));
     }
 
-    public function store(OfferStoreRequest $request, OfferService $offerService)
+    public function store(OfferStoreRequest $request, OfferCmsService $offerService)
     {
         Logger::request('OfferController@Store', $request);
 
-        $offer = $offerService->createFromRequest($request);
-
         try {
-            $offer->attachDefaultServices();
-
-            $offer->attachAllAgents();
+            $offer = $offerService->createFromRequest($request);
 
             Logger::activity('OfferController@Store', $request, $offer);
         } catch (\Exception $exception) {
@@ -135,177 +132,17 @@ class OfferController extends CmsController
             'carSegment', 'childOffers', 'activePromotions', 'promotions','customCars', 'availableColors', 'carColor', 'countSuggested'));
     }
 
-
-
-    public function update(OfferUpdateRequest $request, Offer $offer)
+    public function update(OfferUpdateRequest $request, Offer $offer, OfferCmsService $offerService)
     {
         Logger::request('OfferController@Update', $request);
 
-        $customCar = $request->get('custom_car', NULL);
-
-        $promotions = $request->get('promotions', []);
-
-        $isCustomEnabled = $request->get('custom-car-enabled', NULL);
-        $isCustomEnabled = boolval($isCustomEnabled);
-
-        if (!empty($customCar) && $isCustomEnabled) {
-            $car = Car::findOrFail($customCar);
-        } else {
-            list($motornet, $eurotax) = explode('-', $request->carversion);
-            $car = new Car;
-            $options = [
-                'codice_motornet' => $motornet,
-                'codice_eurotax' => $eurotax,
-            ];
-            $car = $car->saveOrFail($options);
+        try {
+            $newOffer = $offerService->updateFromRequest($request, $offer);
+        } catch (\Exception $exception) {
+            return back()->with('error', $exception->getMessage());
         }
-
-        $carSegment = $offer->car->segmento;
-
-        $carColor = optional(OfferAttributes::where([
-            "offer_id" => $offer->id,
-            "type" => "CAR_COLOR",
-        ])->first())->value;
-
-        $offerAttr = [
-            $offer->deposit,
-            $offer->monthly_rate,
-            $offer->distance,
-            $offer->duration,
-            $offer->deliveryTime->value,
-            $offer->fastDelivery->value,
-            $offer->broker,
-            $offer->car->id,
-            $carSegment,
-            $carColor,
-        ];
-
-        $requestAttr = [
-            $request->deposit,
-            $request->monthly_rate,
-            $request->distance,
-            $request->duration,
-            $request->delivery_time,
-            $request->fast_delivery,
-            $request->broker,
-            $car->id,
-            $request->segment,
-            $request->car_color !== '0' ? $request->car_color : NULL,
-        ];
-
-        $diff = array_merge(array_diff($offerAttr, $requestAttr), array_diff($requestAttr, $offerAttr));
-
-        $newOffer = $offer;
-
-        if (!empty($diff)) {
-            try {
-                /** @var Offer $newOffer */
-                $newOffer = $offer->replicate();
-                $newOffer->push();
-
-                $attachedAgents = $offer->agents;
-                $newOffer->attachAgents($attachedAgents);
-
-                $attachedServices = $offer
-                                        ->services()
-                                        ->pluck('slug')
-                                        ->toArray();
-                $newOffer->attachServices($attachedServices);
-
-                $childOffers = $offer->childOffers;
-                $newOffer->attachChilds($newOffer->id, $childOffers);
-
-                //Aggiorno i dati offerta
-                $newOffer->update([
-                    "deposit" => $request->deposit,
-                    "monthly_rate" => $request->monthly_rate,
-                    "web_monthly_rate" => $request->monthly_rate,
-                    "distance" => $request->distance,
-                    "duration" => $request->duration,
-                ]);
-
-                // Aggiorno i dati dell'allestimento
-                $offer->car->update(['segmento' => $request->segment]);
-
-                //utilizzo funzioni custom per aggiornare anche le variazioni
-                $newOffer->updateBroker($request->broker);
-                $newOffer->updateCarId($car->id);
-
-                //handle colors
-                if (!empty($request->car_color)) {
-                    $offerColor = OfferAttributes::firstOrNew([
-                        "offer_id" => $newOffer->id,
-                        "type" => "CAR_COLOR",
-                    ]);
-                    $offerColor->offer_id = $newOffer->id;
-                    $offerColor->type = "CAR_COLOR";
-                    $offerColor->value = $request->car_color;
-                    $offerColor->description = null;
-                    $offerColor->saveOrFail();
-                } else {
-                    $offerColor = OfferAttributes::where([
-                        "offer_id" => $newOffer->id,
-                        "type" => "CAR_COLOR"
-                    ])->delete();
-                }
-
-                $newOffer->updateDeliveryTime($request->delivery_time);
-                $newOffer->updateFastDelivery($request->delivery_time ? $request->get('fast_delivery', false) : false);
-
-                Logger::activity('OfferController@Update', $request, $newOffer, $offer);
-
-                $offer->delete();
-            } catch (\Exception $exception) {
-                return back()->with('error', $exception->getMessage());
-            }
-        }
-
-
-        if (!empty($request->get('left_label'))) {
-            $leftLabel = OfferAttributes::firstOrNew([
-                "offer_id" => $newOffer->id,
-                "type" => "LEFT_LABEL",
-            ]);
-            $leftLabel->offer_id = $newOffer->id;
-            $leftLabel->type = "LEFT_LABEL";
-            $leftLabel->value =  $request->get('left_label');
-            $leftLabel->description = OfferAttributes::$rentLabels[$request->get('left_label')];
-            $leftLabel->saveOrFail();
-        } else {
-            $leftLabel = OfferAttributes::where([
-                "offer_id" => $newOffer->id,
-                "type" => "LEFT_LABEL"
-            ])->delete();
-        }
-
-        if (!empty($request->get('right_label'))) {
-            $rightLabel = OfferAttributes::firstOrNew([
-                "offer_id" => $newOffer->id,
-                "type" => "RIGHT_LABEL",
-            ]);
-            $rightLabel->offer_id = $newOffer->id;
-            $rightLabel->type = "RIGHT_LABEL";
-            $rightLabel->value =  $request->get('right_label');
-            $rightLabel->description = OfferAttributes::$rentLabels[$request->get('right_label')];
-            $rightLabel->saveOrFail();
-        } else {
-            $rightLabel = OfferAttributes::where([
-                "offer_id" => $newOffer->id,
-                "type" => "RIGHT_LABEL"
-            ])->delete();
-        }
-
-        if (!empty($promotions)) {
-            foreach ($promotions as $promotionId) {
-                /** @var Promotion $promo */
-                $promo = Promotion::find($promotionId);
-                $promo->attachOffer($newOffer);
-            }
-        } else {
-            $newOffer->detachFromAllPromotions();
-        }
-
-        return redirect()->route('offer.edit',['offer' => $newOffer->id])->with('success', 'Offerta aggiornata con successo.');
+        return redirect()->route('offer.edit',['offer' => $newOffer->id])
+                ->with('success', 'Offerta aggiornata con successo.');
     }
 
 

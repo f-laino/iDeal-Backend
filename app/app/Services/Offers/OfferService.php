@@ -14,7 +14,7 @@ use App\Abstracts\Responder;
 use League\Fractal\Manager;
 use Illuminate\Http\Request;
 
-class OfferService extends Responder
+abstract class OfferService extends Responder
 {
     use DateUtils;
 
@@ -28,56 +28,6 @@ class OfferService extends Responder
         return $agent->offers()
             ->where("code", $code)
             ->firstOrFail();
-    }
-
-    public function createFromRequest(OfferCreateRequest|OfferStoreRequest $request, Agent $agent = null): Offer
-    {
-        /** @var Car $car */
-        $car = $this->getCarFromRequest($request);
-
-        if ($request->code) {
-            $code = $request->code;
-        } else {
-            $code = $car->generateCode();
-        }
-
-        /** @var Offer $offer */
-        $offer = new Offer();
-        $offer->code = $code;
-        $offer->car_id = $car->id;
-        $offer->monthly_rate = $request->monthly_rate;
-        $offer->web_monthly_rate = $request->monthly_rate;
-        $offer->deposit = $request->deposit;
-        $offer->distance = $request->distance;
-        $offer->duration = $request->duration;
-        $offer->notes = $request->notes;
-        $offer->is_custom = !empty($agent);
-        $offer->suggested = $request->get('suggested', false);
-        $offer->status = true;
-        $offer->highlighted = false;
-
-        if (!empty($agent)) {
-            $offer->broker = $agent->myGroup->name;
-            $offer->owner_id = $agent->id;
-        } else {
-            $offer->broker = $request->broker;
-        }
-
-        $offer->saveOrFail();
-
-        if ($request->leftLabel && $request->leftLabel['key'] && $request->leftLabel['label']) {
-            $this->addLeftLabel($offer, $request->leftLabel['key'], $request->leftLabel['label']);
-        }
-
-        if ($request->rightLabel && $request->rightLabel['key'] && $request->rightLabel['label']) {
-            $this->addRightLabel($offer, $request->rightLabel['key'], $request->rightLabel['label']);
-        }
-
-        if ($request->reference_code) {
-            $this->addOfferAttribute($offer, 'REFERENCE_CODE', $request->reference_code);
-        }
-
-        return $offer;
     }
 
     public function attachAgentMembersToOffer(Offer $offer, Agent $agent): bool
@@ -98,12 +48,15 @@ class OfferService extends Responder
 
     protected function addOfferAttribute(Offer $offer, $type, $value = null, $description = null): bool
     {
-        $attribute = new OfferAttributes([
+        $attribute = OfferAttributes::firstOrNew([
             'offer_id' => $offer->id,
             'type' => $type,
-            'value' => $value,
-            'description' => $description
         ]);
+
+        $attribute->offer_id = $offer->id;
+        $attribute->type = $type;
+        $attribute->value =  $value;
+        $attribute->description = $description;
 
         return $attribute->saveOrFail();
     }
