@@ -6,11 +6,11 @@
       "parentOffer": {
          "belongsTo": "Offer"
       },
-      "logo": "https://cdn1.carplanner.com/ideal/dealers/logo/CorradoOperato-1653923755.jpg",
+      "logo": {"string": ["https://cdn1.carplanner.com/ideal/dealers/logo/CorradoOperato-1653923755.jpg"]},
       "car": {},
       "agent": {},
       "customer": {},
-      "image": "https://cdn1.carplanner.com/cars/Citroen/C3/21CIT9380005M.jpg",
+      "image": {"string": ["https://cdn1.carplanner.com/cars/Citroen/C3/21CIT9380005M.jpg"]},
       "proposal": {},
       "franchigie": {},
       "documents": {},
