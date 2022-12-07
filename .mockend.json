@@ -14,13 +14,18 @@
       "proposal": {},
       "franchigie": {},
       "documents": {},
-      "carName": "Citroen C3 Benzina",
-      "referenceCode": "AB321YZ",
-      "carModel": "C3",
+      "carName": {"string": ["Citroen C3 Benzina"]},
+      "referenceCode": {"string": ["AB321YZ"]},
+      "carModel": {"string": ["C3"]},
       "accessories": {},
-      "limit": 7,
-      "color": "Rosso elixir",
-      "deliveryTimeLabel": "Ottobre 2024"
+      "limit": {
+         "int": {
+            "min": 7,
+            "max": 7
+         }
+      },
+      "color": {"string": ["Rosso elixir"]},
+      "deliveryTimeLabel": {"string": ["Ottobre 2024"]}
    },
    "Offer": {
       "id": {
@@ -35,28 +40,23 @@
             "max": 98765
          }
       },
-      "code": "citroen-c3-ideal1",
+      "code": {"string": ["citroen-c3-ideal1"]},
       "car_id": {
          "int": {
             "min": 2,
             "max": 654
          }
       },
-      "car_value": 19000,
-      "max_commission": 650,
-      "monthly_rate": 341,
-      "web_monthly_rate": 341,
-      "deposit": 0,
-      "distance": 10000,
-      "duration": 36,
-      "broker": "Sifa",
-      "notes": "",
-      "suggested": false,
-      "owner_id": null,
-      "is_custom": false,
-      "status": true,
-      "highlighted": false,
-      "created_at": "2022-12-07 00:00:00",
-      "updated_at": "2022-12-07 00:00:00"
+      "car_value": {"int": [19000, 20000, 18500]},
+      "max_commission": {"int": [650, 1000, 800]},
+      "monthly_rate": {"int": [341, 326, 413, 440]},
+      "web_monthly_rate": {"int": [341, 326, 413, 440]},
+      "deposit": {"int": [0, 1000, 2000]},
+      "distance": {"int": [10000, 15000, 20000]},
+      "duration": {"int": [36, 24, 48]},
+      "broker": {"string": ["Sifa", "Athlon", "ALD"]},
+      "notes": {"string": ["", "bella vero?", "Il cambio gomme quotato a parte", "", "Restituibile in diversa città"]},
+      "created_at": {"string": ["2022-12-07 00:00:00"]},
+      "updated_at": {"string": ["2022-12-07 00:00:00"]}
    }
 }
