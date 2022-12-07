@@ -1,47 +1,62 @@
 {
-  "Proposal": {
-    "offer": {
-      "belongsTo": "Offer"
-    },
-    "parentOffer": {
-      "belongsTo": "Offer"
-    },
-    "logo": "https://cdn1.carplanner.com/ideal/dealers/logo/CorradoOperato-1653923755.jpg",
-    "car": {},
-    "agent": {},
-    "customer": {},
-    "image": "https://cdn1.carplanner.com/cars/Citroen/C3/21CIT9380005M.jpg",
-    "proposal": {},
-    "franchigie": {},
-    "documents": {},
-    "carName": "Citroen C3 Benzina",
-    "referenceCode": "AB321YZ",
-    "carModel": "C3",
-    "accessories": {},
-    "limit": 7,
-    "color": "Rosso elixir",
-    "deliveryTimeLabel": "Ottobre 2024",
-  },
-  "Offer": {
-    "id": {"int": { "min": 123, "max": 98765 }},
-    "parent_id":  {"int": { "min": 123, "max": 98765 }},
-    "code": "citroen-c3-ideal1",
-    "car_id":  {"int": { "min": 2, "max": 654 }},
-    "car_value": 19000,
-    "max_commission": 650,
-    "monthly_rate": 341.00,
-    "web_monthly_rate": 341.00,
-    "deposit": 0,
-    "distance": 10000,
-    "duration": 36,
-    "broker": "Sifa",
-    "notes": "",
-    "suggested": false,
-    "owner_id": null,
-    "is_custom": false,
-    "status": true,
-    "highlighted": false,
-    "created_at": "2022-12-07 00:00:00",
-    "updated_at": "2022-12-07 00:00:00",
-  }
+   "Proposal": {
+      "offer": {
+         "belongsTo": "Offer"
+      },
+      "parentOffer": {
+         "belongsTo": "Offer"
+      },
+      "logo": "https://cdn1.carplanner.com/ideal/dealers/logo/CorradoOperato-1653923755.jpg",
+      "car": {},
+      "agent": {},
+      "customer": {},
+      "image": "https://cdn1.carplanner.com/cars/Citroen/C3/21CIT9380005M.jpg",
+      "proposal": {},
+      "franchigie": {},
+      "documents": {},
+      "carName": "Citroen C3 Benzina",
+      "referenceCode": "AB321YZ",
+      "carModel": "C3",
+      "accessories": {},
+      "limit": 7,
+      "color": "Rosso elixir",
+      "deliveryTimeLabel": "Ottobre 2024"
+   },
+   "Offer": {
+      "id": {
+         "int": {
+            "min": 123,
+            "max": 98765
+         }
+      },
+      "parent_id": {
+         "int": {
+            "min": 123,
+            "max": 98765
+         }
+      },
+      "code": "citroen-c3-ideal1",
+      "car_id": {
+         "int": {
+            "min": 2,
+            "max": 654
+         }
+      },
+      "car_value": 19000,
+      "max_commission": 650,
+      "monthly_rate": 341,
+      "web_monthly_rate": 341,
+      "deposit": 0,
+      "distance": 10000,
+      "duration": 36,
+      "broker": "Sifa",
+      "notes": "",
+      "suggested": false,
+      "owner_id": null,
+      "is_custom": false,
+      "status": true,
+      "highlighted": false,
+      "created_at": "2022-12-07 00:00:00",
+      "updated_at": "2022-12-07 00:00:00"
+   }
 }
